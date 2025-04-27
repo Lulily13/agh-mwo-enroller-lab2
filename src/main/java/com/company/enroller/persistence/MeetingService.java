@@ -42,4 +42,11 @@ public class MeetingService {
             transaction.commit();
         }
     }
+
+    public void update(Meeting meeting) {
+        Transaction transaction = session.beginTransaction();
+        session.merge(meeting);
+        transaction.commit();
+    }
+
 }
