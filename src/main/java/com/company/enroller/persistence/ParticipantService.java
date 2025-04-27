@@ -16,9 +16,32 @@ public class ParticipantService {
         connector = DatabaseConnector.getInstance();
     }
 
-    public Collection<Participant> getAll() {
+    public Collection<Participant> getAll(String sortBy, String sortOrder, String key) {
         String hql = "FROM Participant";
+        boolean whereAdded = false;
+
+        // Filtrowanie po loginie
+        if (key != null && !key.isEmpty()) {
+            hql += " WHERE login LIKE :key";
+            whereAdded = true;
+        }
+
+        // Sortowanie tylko po loginie
+        if ("login".equalsIgnoreCase(sortBy)) {
+            hql += " ORDER BY login";
+            if ("DESC".equalsIgnoreCase(sortOrder)) {
+                hql += " DESC";
+            } else {
+                hql += " ASC"; // domyślnie ASC jeśli nie podano sortOrder
+            }
+        }
+
         Query query = connector.getSession().createQuery(hql);
+
+        if (key != null && !key.isEmpty()) {
+            query.setParameter("key", "%" + key + "%");
+        }
+
         return query.list();
     }
 
@@ -44,5 +67,5 @@ public class ParticipantService {
         connector.getSession().delete(participant);
         transaction.commit();
     }
-
 }
+
