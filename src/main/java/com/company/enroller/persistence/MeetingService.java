@@ -22,4 +22,8 @@ public class MeetingService {
 		return query.list();
 	}
 
+	public Meeting findById(Long id) {
+		return session.get(Meeting.class, id);
+	}
 }
+
