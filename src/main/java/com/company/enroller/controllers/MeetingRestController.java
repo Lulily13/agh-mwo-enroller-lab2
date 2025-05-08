@@ -115,6 +115,16 @@ public class MeetingRestController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @RequestMapping(value = "/{id}/participants", method = RequestMethod.GET)
+    public ResponseEntity<?> getParticipantsOfMeeting(@PathVariable("id") Long meetingId) {
+        Meeting meeting = meetingService.findById(meetingId);
+        if (meeting == null) {
+            return new ResponseEntity<String>("Meeting not found", HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(meeting.getParticipants(), HttpStatus.OK);
+    }
+
 }
 
 
