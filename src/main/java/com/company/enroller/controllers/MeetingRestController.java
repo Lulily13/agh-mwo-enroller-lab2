@@ -92,6 +92,28 @@ public class MeetingRestController {
         return new ResponseEntity<Meeting>(meeting, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/{id}/participants/{login}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> removeParticipantFromMeeting(@PathVariable("id") Long meetingId,
+                                                          @PathVariable("login") String login) {
+        Meeting meeting = meetingService.findById(meetingId);
+        if (meeting == null) {
+            return new ResponseEntity<String>("Meeting not found", HttpStatus.NOT_FOUND);
+        }
+
+        Participant participant = participantService.findByLogin(login);
+        if (participant == null) {
+            return new ResponseEntity<String>("Participant not found", HttpStatus.NOT_FOUND);
+        }
+
+        if (!meeting.getParticipants().contains(participant)) {
+            return new ResponseEntity<String>("Participant not assigned to this meeting", HttpStatus.NOT_FOUND);
+        }
+
+        meeting.removeParticipant(participant);
+        meetingService.update(meeting);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
 }
 
