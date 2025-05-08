@@ -1,7 +1,9 @@
 package com.company.enroller.controllers;
 
 import com.company.enroller.model.Meeting;
+import com.company.enroller.model.Participant;
 import com.company.enroller.persistence.MeetingService;
+import com.company.enroller.persistence.ParticipantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,9 @@ public class MeetingRestController {
 
     @Autowired
     MeetingService meetingService;
+
+    @Autowired
+    ParticipantService participantService;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ResponseEntity<?> getMeetings() {
@@ -62,6 +67,29 @@ public class MeetingRestController {
         meetingService.update(meeting);
 
         return new ResponseEntity<>(meeting, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{id}/participants/{login}", method = RequestMethod.POST)
+    public ResponseEntity<?> addParticipantToMeeting(@PathVariable("id") Long meetingId,
+                                                     @PathVariable("login") String login) {
+        Meeting meeting = meetingService.findById(meetingId);
+        if (meeting == null) {
+            return new ResponseEntity<String>("Meeting not found", HttpStatus.NOT_FOUND);
+        }
+
+        Participant participant = participantService.findByLogin(login);
+        if (participant == null) {
+            return new ResponseEntity<String>("Participant not found", HttpStatus.NOT_FOUND);
+        }
+
+        if (meeting.getParticipants().contains(participant)) {
+            return new ResponseEntity<String>("Participant already assigned to meeting", HttpStatus.CONFLICT);
+        }
+
+        meeting.addParticipant(participant);
+        meetingService.update(meeting);
+
+        return new ResponseEntity<Meeting>(meeting, HttpStatus.OK);
     }
 
 
